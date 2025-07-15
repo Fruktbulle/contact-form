@@ -23,6 +23,12 @@
       <label for="phone">Telefon:</label>
       <input type="tel" id="phone" name="phone" required />
 
+      <!-- Dolda originalvärden -->
+      <input type="hidden" id="originalName" />
+      <input type="hidden" id="originalEmail" />
+      <input type="hidden" id="originalPhone" />
+      <input type="hidden" id="recordId" />
+
       <button type="submit">Skicka</button>
     </form>
     <div id="confirmation" style="display:none;">Tack! Dina uppgifter är skickade.</div>
@@ -31,37 +37,48 @@
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const params = new URLSearchParams(window.location.search);
-      const form = document.getElementById('form');
+
       const nameField = document.getElementById('name');
       const emailField = document.getElementById('email');
       const phoneField = document.getElementById('phone');
 
-      // Sätt formulärvärden
-      nameField.value = params.get('name') || '';
-      emailField.value = params.get('email') || '';
-      phoneField.value = params.get('phone') || '';
+      const originalName = document.getElementById('originalName');
+      const originalEmail = document.getElementById('originalEmail');
+      const originalPhone = document.getElementById('originalPhone');
+      const recordId = document.getElementById('recordId');
 
-      form.addEventListener('submit', async (e) => {
+      // Sätt fältvärden
+      const nameVal = params.get('name') || '';
+      const emailVal = params.get('email') || '';
+      const phoneVal = params.get('phone') || '';
+      const idVal = params.get('id') || '';
+
+      nameField.value = nameVal;
+      emailField.value = emailVal;
+      phoneField.value = phoneVal;
+
+      // Spara original i dolda fält
+      originalName.value = nameVal;
+      originalEmail.value = emailVal;
+      originalPhone.value = phoneVal;
+      recordId.value = idVal;
+
+      document.getElementById('form').addEventListener('submit', async (e) => {
         e.preventDefault();
 
-         // Spara originalvärden direkt vid sidladdning
-const originalValues = {
-  name: nameField.value,
-  email: emailField.value,
-  phone: phoneField.value
-};
-
-// Sen i submit:
-const payload = {
-  id: params.get('id'),
-  original: originalValues,
-  updated: {
-    name: nameField.value,
-    email: emailField.value,
-    phone: phoneField.value
-  }
-};
-
+        const payload = {
+          id: recordId.value,
+          original: {
+            name: originalName.value,
+            email: originalEmail.value,
+            phone: originalPhone.value
+          },
+          updated: {
+            name: nameField.value,
+            email: emailField.value,
+            phone: phoneField.value
+          }
+        };
 
         try {
           const res = await fetch('https://gurraaaa.app.n8n.cloud/webhook-test/64815d60-9a11-4a7d-9612-dd4ae7c647dd', {
@@ -71,7 +88,7 @@ const payload = {
           });
 
           if (res.ok) {
-            form.style.display = 'none';
+            document.getElementById('form').style.display = 'none';
             document.getElementById('confirmation').style.display = 'block';
           } else {
             alert("Något gick fel. Försök igen.");
@@ -86,4 +103,3 @@ const payload = {
   </script>
 </body>
 </html>
-
