@@ -44,19 +44,24 @@
       form.addEventListener('submit', async (e) => {
         e.preventDefault();
 
-        const payload = {
-          id: params.get('id'),
-          original: {
-            name: params.get('name') || '',
-            email: params.get('email') || '',
-            phone: params.get('phone') || ''
-          },
-          updated: {
-            name: nameField.value,
-            email: emailField.value,
-            phone: phoneField.value
-          }
-        };
+         // Spara originalvärden direkt vid sidladdning
+const originalValues = {
+  name: nameField.value,
+  email: emailField.value,
+  phone: phoneField.value
+};
+
+// Sen i submit:
+const payload = {
+  id: params.get('id'),
+  original: originalValues,
+  updated: {
+    name: nameField.value,
+    email: emailField.value,
+    phone: phoneField.value
+  }
+};
+
 
         try {
           const res = await fetch('https://gurraaaa.app.n8n.cloud/webhook-test/64815d60-9a11-4a7d-9612-dd4ae7c647dd', {
