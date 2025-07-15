@@ -7,7 +7,7 @@
     body { font-family: Arial; padding: 20px; background: #f7f7f7; }
     .form-box { background: white; padding: 30px; max-width: 500px; margin: auto; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
     input, button { width: 100%; margin: 10px 0; padding: 10px; }
-    button { background-color: #5c6ac4; color: white; border: none; }
+    button { background-color: #5c6ac4; color: white; border: none; cursor: pointer; }
   </style>
 </head>
 <body>
@@ -15,13 +15,13 @@
     <h2>Uppdatera dina uppgifter</h2>
     <form id="form">
       <label for="name">Namn:</label>
-      <input type="text" id="name" name="name" />
+      <input type="text" id="name" name="name" required />
 
       <label for="email">E-post:</label>
-      <input type="email" id="email" name="email" />
+      <input type="email" id="email" name="email" required />
 
       <label for="phone">Telefon:</label>
-      <input type="tel" id="phone" name="phone" />
+      <input type="tel" id="phone" name="phone" required />
 
       <button type="submit">Skicka</button>
     </form>
@@ -29,47 +29,55 @@
   </div>
 
   <script>
-    // Hämta URL-parametrar
-    const params = new URLSearchParams(window.location.search);
-    const nameField = document.getElementById('name');
-    const emailField = document.getElementById('email');
-    const phoneField = document.getElementById('phone');
+    document.addEventListener('DOMContentLoaded', () => {
+      const params = new URLSearchParams(window.location.search);
+      const form = document.getElementById('form');
+      const nameField = document.getElementById('name');
+      const emailField = document.getElementById('email');
+      const phoneField = document.getElementById('phone');
 
-    // Populera formuläret med befintliga värden
-    nameField.value = params.get('name') || '';
-    emailField.value = params.get('email') || '';
-    phoneField.value = params.get('phone') || '';
+      // Sätt formulärvärden
+      nameField.value = params.get('name') || '';
+      emailField.value = params.get('email') || '';
+      phoneField.value = params.get('phone') || '';
 
-    document.getElementById('form').addEventListener('submit', async function(e) {
-      e.preventDefault();
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
 
-      // Skapa payload
-      const payload = {
-        id: params.get('id'),
-        original: {
-          name: params.get('name') || '',
-          email: params.get('email') || '',
-          phone: params.get('phone') || ''
-        },
-        updated: {
-          name: nameField.value,
-          email: emailField.value,
-          phone: phoneField.value
+        const payload = {
+          id: params.get('id'),
+          original: {
+            name: params.get('name') || '',
+            email: params.get('email') || '',
+            phone: params.get('phone') || ''
+          },
+          updated: {
+            name: nameField.value,
+            email: emailField.value,
+            phone: phoneField.value
+          }
+        };
+
+        try {
+          const res = await fetch('https://gurraaaa.app.n8n.cloud/webhook/form-submit', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+
+          if (res.ok) {
+            form.style.display = 'none';
+            document.getElementById('confirmation').style.display = 'block';
+          } else {
+            alert("Något gick fel. Försök igen.");
+            console.error('Webhook response:', await res.text());
+          }
+        } catch (err) {
+          alert("Fel vid anslutning till servern.");
+          console.error('Fetch error:', err);
         }
-      };
-
-      // Skicka till n8n-webhook
-      await fetch('https://gurraaaa.app.n8n.cloud/webhook/form-submit', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
       });
-
-      // Visa bekräftelse
-      document.getElementById('form').style.display = 'none';
-      document.getElementById('confirmation').style.display = 'block';
     });
   </script>
 </body>
 </html>
-
