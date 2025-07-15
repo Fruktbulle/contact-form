@@ -14,14 +14,14 @@
   <div class="form-box">
     <h2>Uppdatera dina uppgifter</h2>
     <form id="form">
-      <label>Namn:</label>
-      <input type="text" id="name" name="name">
+      <label for="name">Namn:</label>
+      <input type="text" id="name" name="name" />
 
-      <label>E-post:</label>
-      <input type="email" id="email" name="email">
+      <label for="email">E-post:</label>
+      <input type="email" id="email" name="email" />
 
-      <label>Telefon:</label>
-      <input type="tel" id="phone" name="phone">
+      <label for="phone">Telefon:</label>
+      <input type="tel" id="phone" name="phone" />
 
       <button type="submit">Skicka</button>
     </form>
@@ -29,26 +29,43 @@
   </div>
 
   <script>
+    // Hämta URL-parametrar
     const params = new URLSearchParams(window.location.search);
-    document.getElementById('name').value = params.get('name') || '';
-    document.getElementById('email').value = params.get('email') || '';
-    document.getElementById('phone').value = params.get('phone') || '';
+    const nameField = document.getElementById('name');
+    const emailField = document.getElementById('email');
+    const phoneField = document.getElementById('phone');
+
+    // Populera formuläret med befintliga värden
+    nameField.value = params.get('name') || '';
+    emailField.value = params.get('email') || '';
+    phoneField.value = params.get('phone') || '';
 
     document.getElementById('form').addEventListener('submit', async function(e) {
       e.preventDefault();
+
+      // Skapa payload
       const payload = {
         id: params.get('id'),
-        name: document.getElementById('name').value,
-        email: document.getElementById('email').value,
-        phone: document.getElementById('phone').value
+        original: {
+          name: params.get('name') || '',
+          email: params.get('email') || '',
+          phone: params.get('phone') || ''
+        },
+        updated: {
+          name: nameField.value,
+          email: emailField.value,
+          phone: phoneField.value
+        }
       };
 
-      await fetch('https://din-n8n-webhook-url/webhook', {
+      // Skicka till n8n-webhook
+      await fetch('https://gurraaaa.app.n8n.cloud/webhook-test/form-submit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
 
+      // Visa bekräftelse
       document.getElementById('form').style.display = 'none';
       document.getElementById('confirmation').style.display = 'block';
     });
